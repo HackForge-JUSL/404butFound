@@ -1,0 +1,1 @@
+- Store the temp image and run the prediction models on it
