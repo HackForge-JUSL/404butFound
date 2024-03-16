@@ -22,6 +22,7 @@ mrimodel = load_model('Models/MRI/VGG16-Brain-Tumor-MRI-3.h5')
 # Load the pneumonia model
 pneumonia_model = load_model("Models/PNEUMONIA/pneumonia_model.h5")
 
+# Load the Cancer model
 cancerModel = load_model("Models\LUNG-CANCER\lung cancer_final_99.h5")
 cancerModel.compile(optimizer='rmsprop',
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(
@@ -35,8 +36,9 @@ class NumpyInt64Encoder(json.JSONEncoder):
             return int(obj)
         return super().default(obj)
 
-
 # Backend routes
+
+
 @app.route('/predict-ct', methods=['POST'])
 def predict_ct():
     if 'image' not in request.files:
@@ -76,6 +78,7 @@ def predict_ct():
 
 @app.route('/predict-mri', methods=['POST'])
 def predict_mri():
+    # Check if an image file is provided in the request
     if 'image' not in request.files:
         return jsonify({'error': 'No image file provided'})
 
@@ -103,6 +106,7 @@ def predict_mri():
         'predicted_class': predicted_class_label,
         'probability': float(predictions[0][predicted_class_index[0]]) * 100
     }
+
     # Remove the temporary image file
     os.remove(img_path)
 
