@@ -84,6 +84,25 @@ def predict_mri():
     img_path = f"tmp/{img.filename}"  # Save the file temporarily
     img.save(img_path)
 
+    img = image.load_img(img_path, target_size=(460, 460))
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    img = preprocess_input_mri(img)
+
+    print("Predicting MRI")
+    # Make predictions on the image
+    predictions = mrimodel.predict(img)
+
+    # Interpret the predictions
+    class_labels = ['Pituitary', 'Notumor', 'Meningioma', 'Glioma']
+    predicted_class_index = np.argmax(predictions, axis=1)
+    predicted_class_label = class_labels[predicted_class_index[0]]
+    print(predictions)
+    # Prepare the response
+    response = {
+        'predicted_class': predicted_class_label,
+        'probability': float(predictions[0][predicted_class_index[0]]) * 100
+    }
     # Remove the temporary image file
     os.remove(img_path)
 
@@ -101,11 +120,32 @@ def pneumonia_prediction():
     img_path = f"tmp/{img.filename}"  # Save the file temporarily
     img.save(img_path)
 
+    test_image = image.load_img(img_path, target_size=(460, 460))
+    test_image = image.img_to_array(test_image)
+    test_image = np.expand_dims(test_image, axis=0)
+    test_image = test_image / 255.0
+    # test_image = preprocess_input_resnet(test_image)
+
+    prediction = pneumonia_model.predict(test_image)
+    print("Prediction: ", prediction)
+    if prediction[0][0] < 0.5:
+        statistic = (1.0-prediction[0]) * 100
+        result = {
+            'predicted_class': 'Normal',
+            'probability': float(statistic)
+        }
+    else:
+        statistic = prediction[0] * 100
+        result = {
+            'predicted_class': 'PNEUMONIA',
+            'probability': float(statistic)
+        }
+
     # Remove the temporary image file
     os.remove(img_path)
 
     # Return the response in JSON format
-    return jsonify(response)
+    return jsonify(result)
 
 
 @app.route('/cancer-prediction', methods=['POST'])
@@ -118,11 +158,28 @@ def cancer_prediction():
     img_path = f"tmp/{img.filename}"  # Save the file temporarily
     img.save(img_path)
 
+    test_image = image.load_img(img_path, target_size=(460, 460))
+    test_image = image.img_to_array(test_image)
+    test_image = np.expand_dims(test_image, axis=0)
+    test_image = test_image / 255.0
+
+    predictionsCancer = cancerModel.predict(test_image)
+    print(predictionsCancer)
+
+    predicted_class = np.argmax(predictionsCancer)
+
+    if predicted_class == 0:
+        result = {'predicted_class': 'Benign',
+                  'probability': float(predictionsCancer[0][0])*100}
+    elif predicted_class == 1:
+        result = {'predicted_class': 'Malignant',
+                  'probability': float(predictionsCancer[0][1])*100}
+    else:
+        result = {'predicted_class': 'Normal',
+                  'probability': float(predictionsCancer[0][2])*100}
     # Remove the temporary image file
     os.remove(img_path)
-
-    # Return the response in JSON format
-    return jsonify(response)
+    return jsonify(result)
 
 
 # Test route
