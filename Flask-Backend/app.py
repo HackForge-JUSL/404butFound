@@ -84,6 +84,26 @@ def predict_mri():
     img_path = f"tmp/{img.filename}"  # Save the file temporarily
     img.save(img_path)
 
+    img = image.load_img(img_path, target_size=(460, 460))
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    img = preprocess_input_mri(img)
+
+    print("Predicting MRI")
+    # Make predictions on the image
+    predictions = mrimodel.predict(img)
+
+    # Interpret the predictions
+    class_labels = ['Pituitary', 'Notumor', 'Meningioma', 'Glioma']
+    predicted_class_index = np.argmax(predictions, axis=1)
+    predicted_class_label = class_labels[predicted_class_index[0]]
+    print(predictions)
+    # Prepare the response
+    response = {
+        'predicted_class': predicted_class_label,
+        'probability': float(predictions[0][predicted_class_index[0]]) * 100
+    }
+
     # Remove the temporary image file
     os.remove(img_path)
 
