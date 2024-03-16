@@ -370,3 +370,73 @@ app.get("/doctor/details/:id", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+// CHAT WITH GPT
+
+const runPrompt = async (prompt) => {
+    const options = {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "assistant", content: prompt }],
+            temperature: 0.2,
+            max_tokens: 100,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+        }),
+    };
+
+    try {
+        const response = await fetch(
+            "https://api.openai.com/v1/chat/completions",
+            options
+        );
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Some error occured*");
+    }
+    return;
+};
+
+app.post("/completion", async (req, res) => {
+    const prompt = req.body.prompt;
+    try {
+        const response = await runPrompt(prompt);
+        res.send(response);
+    } catch (error) {
+        console.error("Some error occured");
+    }
+});
+
+app.post("/user/review", async (req, res) => {
+    try {
+        const { rating, review, appointmentId } = req.body;
+        const appointment = await Appointment.findById(appointmentId);
+        const docId = appointment.doctorId;
+        const doctor = await Doctor.findById(docId);
+        if (doctor) {
+            const oldRating = doctor.feedback.rating;
+            const newRating = (oldRating + rating) / (doctor.feedback.count + 1);
+            doctor.feedback.rating = newRating;
+            doctor.feedback.count = doctor.feedback.count + 1;
+            doctor.feedback.review.push(review);
+            await doctor.save();
+            res.status(200).json({ message: "Review added successfully" });
+        } else {
+            res.status(404).json({ message: "Something wrong here" });
+        }
+    } catch (error) {
+        console.error("Some error occured", error);
+    }
+});
+// Start the server
+const port = 3001; // Choose any port you prefer
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
