@@ -19,36 +19,45 @@ const client = twilio('ACfca9a7381069a17b4baaca1721054194', '8bee7a75a10be12fd91
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Route for receiving SMS messages
-app.post("/sms", (req, res) => {
-  const receivedMessage = req.body.Body;
-  const senderNumber = req.body.From;
-  console.log(req.body);
+// app.post("/sms", (req, res) => {
+//   const receivedMessage = req.body.Body;
+//   const senderNumber = req.body.From;
+//   console.log(req.body);
 
-  console.log(`Received message: ${receivedMessage} from ${senderNumber}`);
+//   console.log(`Received message: ${receivedMessage} from ${senderNumber}`);
 
-  // Process the received message and decide on a reply
-  let replyMessage = "";
-  if (receivedMessage.toLowerCase().includes("hello")) {
-    replyMessage = "Hi there! How can I assist you?";
-  } else {
-    replyMessage = "Sorry, I didn't understand that. Please try again.";
-  }
+//   // Process the received message and decide on a reply
+//   let replyMessage = "";
+//   if (receivedMessage.toLowerCase().includes("hello")) {
+//     replyMessage = "Hi there! How can I assist you?";
+//   } else {
+//     replyMessage = "Sorry, I didn't understand that. Please try again.";
+//   }
 
-  // Send a reply message
+//   // Send a reply message
+//   client.messages
+//     .create({
+//       body: "Hii",
+//       to: '+918944015868',
+//       from: '+16095345886',
+//     })
+//     .then((message) => console.log(`Sent reply: ${message.sid}`));
+
+//   res.sendStatus(200);
+// });
+
+app.get('/get-messages', (req, res) => {
   client.messages
+
+  // I have stomachache, what should i do?
     .create({
-      body: "Hii",
+      body: "Please drink plenty of water and avoid spicy or fatty foods. Consider taking over-the-counter antacids like Maalox or Pepto-Bismol. If symptoms persist, consult a healthcare professional.",
       to: '+918944015868',
       from: '+16095345886',
     })
     .then((message) => console.log(`Sent reply: ${message.sid}`));
 
   res.sendStatus(200);
-});
-
-app.get('/get-messages', (req, res) => {
-  client.messages.list({ limit: 20 })
-    .then(messages => messages.forEach(m => console.log(m.body)));
 })
 
 // Start the server
@@ -57,5 +66,5 @@ app.listen(port, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Hello World from twilo");
 });
