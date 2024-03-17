@@ -17,29 +17,30 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Route for receiving SMS messages
 app.post("/sms", (req, res) => {
-  const receivedMessage = req.body.Body;
-  const senderNumber = req.body.From;
+  // const receivedMessage = req.body.Body;
+  // const senderNumber = req.body.From;
+  console.log(req.body);
 
-  console.log(`Received message: ${receivedMessage} from ${senderNumber}`);
+  // console.log(`Received message: ${receivedMessage} from ${senderNumber}`);
 
-  // Process the received message and decide on a reply
-  let replyMessage = "";
-  if (receivedMessage.toLowerCase().includes("hello")) {
-    replyMessage = "Hi there! How can I assist you?";
-  } else {
-    replyMessage = "Sorry, I didn't understand that. Please try again.";
-  }
+  // // Process the received message and decide on a reply
+  // let replyMessage = "";
+  // if (receivedMessage.toLowerCase().includes("hello")) {
+  //   replyMessage = "Hi there! How can I assist you?";
+  // } else {
+  //   replyMessage = "Sorry, I didn't understand that. Please try again.";
+  // }
 
-  // Send a reply message
-  client.messages
-    .create({
-      body: "Hii",
-      to: '+918944015868',
-      from: '+16095345886',
-    })
-    .then((message) => console.log(`Sent reply: ${message.sid}`));
+  // // Send a reply message
+  // client.messages
+  //   .create({
+  //     body: "Hii",
+  //     to: '+918944015868',
+  //     from: '+16095345886',
+  //   })
+  //   .then((message) => console.log(`Sent reply: ${message.sid}`));
 
-  res.sendStatus(200);
+  // res.sendStatus(200);
 });
 
 // Start the server
