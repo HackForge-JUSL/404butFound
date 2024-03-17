@@ -41,7 +41,7 @@ const Navbar = () => {
     } else {
       setIsLogin(false);
     }
-    if (isDoc) {
+    if (isDoc != "false") {
       setIsDoctor(true);
     }
   }, []);
