@@ -3,15 +3,18 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const twilio = require("twilio");
 
+const cors = require("cors");
+
 const app = express();
-const port = process.env.PORT || 3000;
+app.use(express.json());
+const port = process.env.PORT || 4200;
 
 const { TWILIO_ACCOUNT_SID, YOUR_TWILIO_AUTH_TOKEN } = process.env;
 
 // Twilio credentials
 const accountSid = TWILIO_ACCOUNT_SID;
 const authToken = YOUR_TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
+const client = twilio('ACfca9a7381069a17b4baaca1721054194', '8bee7a75a10be12fd9133610b2f5738a');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -19,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.post("/sms", (req, res) => {
   const receivedMessage = req.body.Body;
   const senderNumber = req.body.From;
+  console.log(req.body);
 
   console.log(`Received message: ${receivedMessage} from ${senderNumber}`);
 
@@ -33,16 +37,25 @@ app.post("/sms", (req, res) => {
   // Send a reply message
   client.messages
     .create({
-      body: replyMessage,
-      to: senderNumber,
-      from: "YOUR_TWILIO_PHONE_NUMBER",
+      body: "Hii",
+      to: '+918944015868',
+      from: '+16095345886',
     })
     .then((message) => console.log(`Sent reply: ${message.sid}`));
 
   res.sendStatus(200);
 });
 
+app.get('/get-messages', (req, res) => {
+  client.messages.list({ limit: 20 })
+    .then(messages => messages.forEach(m => console.log(m.body)));
+})
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
 });
